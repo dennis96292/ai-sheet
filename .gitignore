@@ -1,0 +1,10 @@
+node_modules
+dist
+public/model
+test/.cache
+test/real
+server/.venv
+server/vendor
+__pycache__
+.claude
+.preview

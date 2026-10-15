@@ -1,0 +1,76 @@
+name: docker
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/ai-sheet
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build test image (amd64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: ai-sheet:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test
+        run: |
+          docker run -d --name t -p 8765:8765 ai-sheet:test
+          for i in $(seq 1 60); do
+            [ "$(docker inspect -f '{{.State.Health.Status}}' t)" = healthy ] && break; sleep 3
+          done
+          curl -fsS http://127.0.0.1:8765/ | grep -q '<title>AI Sheet</title>'
+          curl -fsS -o /dev/null http://127.0.0.1:8765/samples/piano/C4.mp3
+          id=$(curl -fsS -F file=@test/cases/melody_chords.wav http://127.0.0.1:8765/api/analyze | jq -r .id)
+          for i in $(seq 1 120); do
+            r=$(curl -fsS http://127.0.0.1:8765/api/jobs/$id); st=$(echo "$r" | jq -r .stage)
+            [ "$st" = done ] || [ "$st" = error ] && break; sleep 3
+          done
+          echo "$r" | jq '{stage, notes: (.result.notes | length), beats: (.result.beats | length), timeSignature: .result.timeSignature}'
+          [ "$st" = done ] && [ "$(echo "$r" | jq '.result.notes | length')" -ge 40 ]
+          docker rm -f t
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
+      - name: Build and push (amd64 + arm64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

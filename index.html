@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>AI Sheet</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <input id="file" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac,.aac" hidden />
+
+    <section id="drop" class="drop" role="button" tabindex="0" aria-label="選擇音訊檔">
+      <div class="drop-icon" data-icon="audioFile"></div>
+    </section>
+
+    <section id="busy" class="busy" hidden>
+      <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="ring-bg" cx="60" cy="60" r="52" />
+        <circle id="ring-fg" class="ring-fg" cx="60" cy="60" r="52" />
+      </svg>
+      <span id="busy-pct" class="busy-pct">0</span>
+    </section>
+
+    <main id="app" hidden>
+      <div class="toolbar">
+        <button class="icon-btn" id="btn-open" data-icon="upload" aria-label="開啟音訊"></button>
+        <button class="icon-btn" id="btn-settings" data-icon="settings" aria-label="轉譜設定" aria-expanded="false"></button>
+        <div class="menu-wrap">
+          <button class="icon-btn" id="btn-download" data-icon="download" aria-label="下載" aria-expanded="false"></button>
+          <div class="menu" id="download-menu" hidden>
+            <button id="dl-xml">MusicXML</button>
+            <button id="dl-midi">MIDI</button>
+          </div>
+        </div>
+        <div class="panel" id="settings" hidden>
+          <label class="row" aria-label="速度">
+            <span data-icon="metronome"></span>
+            <input id="opt-bpm" type="number" min="30" max="260" step="1" />
+            <span class="key-label" id="key-label"></span>
+          </label>
+          <div class="row" aria-label="拍號">
+            <span class="row-gap"></span>
+            <div class="seg" id="opt-ts">
+              <button data-v="4" class="ts-btn"><span>4</span><span>4</span></button>
+              <button data-v="3" class="ts-btn"><span>3</span><span>4</span></button>
+              <button data-v="2" class="ts-btn"><span>2</span><span>4</span></button>
+            </div>
+          </div>
+          <div class="row" aria-label="量化精度">
+            <span class="row-gap"></span>
+            <div class="seg" id="opt-grid">
+              <button data-v="2" data-icon="eighth" aria-label="八分音符"></button>
+              <button data-v="1" data-icon="sixteenth" aria-label="十六分音符"></button>
+            </div>
+          </div>
+          <label class="row" aria-label="靈敏度">
+            <span data-icon="sensitivity"></span>
+            <input id="opt-sens" type="range" min="0" max="1" step="0.05" value="0.5" />
+          </label>
+          <label class="row" aria-label="左右手分界">
+            <span data-icon="split"></span>
+            <input id="opt-split" type="range" min="48" max="72" step="1" value="60" />
+            <span class="readout" id="split-label">C4</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="score" class="score"></div>
+    </main>
+
+    <footer id="transport" class="transport" hidden>
+      <div class="progress" id="progress" role="slider" aria-label="位置" tabindex="0">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="controls">
+        <div class="group">
+          <button class="icon-btn" id="btn-restart" data-icon="restart" aria-label="回到開頭"></button>
+          <button class="icon-btn" id="btn-prev" data-icon="stepBack" aria-label="上一個音"></button>
+          <button class="icon-btn play" id="btn-play" data-icon="play" aria-label="播放"></button>
+          <button class="icon-btn" id="btn-next" data-icon="stepForward" aria-label="下一個音"></button>
+          <button class="icon-btn" id="btn-bar" data-icon="barline" aria-label="設為小節第一拍"></button>
+          <span class="readout pos" id="pos">1 : 1</span>
+        </div>
+        <div class="group">
+          <label class="slider" aria-label="播放速度">
+            <span data-icon="speed"></span>
+            <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" />
+            <span class="readout" id="speed-label">100%</span>
+          </label>
+          <label class="slider" aria-label="鋼琴音量">
+            <span data-icon="piano"></span>
+            <input id="vol-piano" type="range" min="0" max="1" step="0.01" value="0.9" />
+          </label>
+          <label class="slider" aria-label="原始音訊音量">
+            <span data-icon="wave"></span>
+            <input id="vol-orig" type="range" min="0" max="1" step="0.01" value="0" />
+          </label>
+          <button class="icon-btn" id="btn-zoom-out" data-icon="zoomOut" aria-label="縮小"></button>
+          <button class="icon-btn" id="btn-zoom-in" data-icon="zoomIn" aria-label="放大"></button>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

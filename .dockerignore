@@ -1,0 +1,10 @@
+node_modules
+dist
+public/model
+server/.venv
+server/vendor
+**/__pycache__
+test
+.claude
+.git
+*.log

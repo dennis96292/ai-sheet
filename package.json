@@ -1,0 +1,26 @@
+{
+  "name": "ai-sheet",
+  "version": "1.0.0",
+  "description": "音訊轉鋼琴譜，並可隨五線譜逐音符播放",
+  "scripts": {
+    "postinstall": "node scripts/copy-model.mjs",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "eval": "node scripts/eval.mjs",
+    "server": "server\\.venv\\Scripts\\python -m uvicorn server.app:app --port 8765"
+  },
+  "dependencies": {
+    "@spotify/basic-pitch": "^1.0.1",
+    "@tensorflow/tfjs": "^3.21.0",
+    "@tonejs/midi": "^2.0.28",
+    "opensheetmusicdisplay": "^2.2.1",
+    "tone": "^15.1.22"
+  },
+  "devDependencies": {
+    "vite": "^5.4.21"
+  },
+  "private": true,
+  "type": "module",
+  "license": "MIT"
+}
