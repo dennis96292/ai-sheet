@@ -34,9 +34,9 @@ jobs:
 
       - name: Smoke test
         run: |
-          docker run -d --name t -p 8765:8765 ai-sheet:test
+          docker run -d --name ai-sheet-smoke -p 8765:8765 ai-sheet:test
           for i in $(seq 1 60); do
-            [ "$(docker inspect -f '{{.State.Health.Status}}' t)" = healthy ] && break; sleep 3
+            [ "$(docker inspect -f '{{.State.Health.Status}}' ai-sheet-smoke)" = healthy ] && break; sleep 3
           done
           curl -fsS http://127.0.0.1:8765/ | grep -q '<title>AI Sheet</title>'
           curl -fsS -o /dev/null http://127.0.0.1:8765/samples/piano/C4.mp3
@@ -47,7 +47,7 @@ jobs:
           done
           echo "$r" | jq '{stage, notes: (.result.notes | length), beats: (.result.beats | length), timeSignature: .result.timeSignature}'
           [ "$st" = done ] && [ "$(echo "$r" | jq '.result.notes | length')" -ge 40 ]
-          docker rm -f t
+          docker rm -f ai-sheet-smoke
 
       - uses: docker/login-action@v3
         with:
